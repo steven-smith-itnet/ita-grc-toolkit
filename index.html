@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT Controls Assurance Toolkit — Demonstration</title>
+  <meta name="description" content="An illustrative, open-source-style toolkit of reusable scripts and templates for IT audit & GRC — ITGC evidence collection, access recertification & SoD, control testing, Jinja2 report generation, framework crosswalks, and multi-cloud policy-as-code guardrails. A reusable work-sample template." />
+  <style>
+    :root{--bg:#0a0f1c;--bg-2:#0e1626;--panel:rgba(255,255,255,0.04);--panel-border:rgba(120,160,220,0.16);--text:#eaf0fb;--text-soft:#a9b7cf;--text-mute:#6f7f9c;--accent:#58a6ff;--accent-2:#7cc4ff;--accent-deep:#1d4ed8;--green:#4ade80;--amber:#fbbf24;--orange:#fb923c;--red:#f87171;--radius:14px;--max:1080px;--mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;--sans:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent-2)}
+    code,pre{font-family:var(--mono)}
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(10,15,28,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--panel-border)}
+    .topbar-inner{max-width:var(--max);margin:0 auto;height:60px;padding:0 24px;display:flex;align-items:center;gap:14px}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:600}
+    .brand-badge{width:34px;height:34px;border-radius:8px;background:#fff;color:#16202f;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;letter-spacing:-1px}
+    .brand small{display:block;font-size:.66rem;color:var(--text-mute);font-weight:500;letter-spacing:.05em}
+    .btn{margin-left:auto;display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;font-size:.85rem;font-weight:600;border:1px solid var(--panel-border);color:var(--text-soft)}
+    .btn:hover{color:#fff;background:rgba(255,255,255,.06)}
+    .wrap{max-width:var(--max);margin:0 auto;padding:clamp(32px,6vw,64px) 24px 80px}
+    .page-head{margin-bottom:40px}
+    .eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;font-weight:600;color:var(--accent)}
+    .page-head h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-.02em;margin:12px 0 10px}
+    .page-head p.sub{color:var(--text-soft);font-size:1.05rem}
+    .divider{width:52px;height:3px;background:var(--accent);border-radius:2px;margin-top:18px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:44px}
+    .stat{padding:22px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--panel-border);text-align:center}
+    .stat .num{display:block;font-size:2rem;font-weight:700;line-height:1;margin-bottom:8px}
+    .stat .num.accent{background:linear-gradient(120deg,var(--accent-2),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .stat .lbl{font-size:.82rem;color:var(--text-soft)}
+    .block{margin-bottom:52px}
+    .block-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .block-head svg{color:var(--accent)}.block-head h2{font-size:1.3rem;font-weight:700}
+    .intro{color:var(--text-soft);font-size:.92rem;margin-bottom:20px;max-width:840px}
+    .card{padding:20px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--panel-border)}
+    /* overview */
+    .company{padding:26px}
+    .company-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+    .company-logo{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,#58a6ff,#1d4ed8);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .company-head h3{font-size:1.15rem;font-weight:650}.company-tag{font-size:.88rem;color:var(--text-mute)}
+    .ov-purpose{font-size:.9rem;color:var(--text-soft);margin-bottom:18px;max-width:820px}
+    .ov-sub{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin:4px 0 8px}
+    .svc-strip{display:flex;flex-wrap:wrap;gap:7px;border-top:1px solid var(--panel-border);padding-top:16px;margin-top:18px}
+    .svc-badge{font-family:var(--mono);font-size:.74rem;padding:3px 9px;border-radius:6px;background:rgba(88,166,255,.08);border:1px solid var(--panel-border);color:var(--accent-2)}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    /* table */
+    .filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+    .filters .fl{font-size:.8rem;color:var(--text-mute)}
+    .fbtn{padding:6px 12px;border-radius:8px;font-size:.8rem;cursor:pointer;color:var(--text-soft);background:transparent;border:1px solid var(--panel-border)}
+    .fbtn:hover{color:var(--text);background:rgba(255,255,255,.05)}.fbtn.active{color:#fff;background:rgba(88,166,255,.18);border-color:var(--accent)}
+    .table-wrap{overflow-x:auto;border:1px solid var(--panel-border);border-radius:var(--radius)}
+    table{width:100%;border-collapse:collapse;min-width:720px}
+    thead th{text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-mute);padding:11px 12px;border-bottom:1px solid var(--panel-border);background:rgba(255,255,255,.02)}
+    tbody td{padding:11px 12px;font-size:.84rem;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle}
+    .cid{font-family:var(--mono);font-size:.8rem;color:var(--accent)}
+    .cname{font-weight:600;color:var(--text)}
+    .tsc-badge{font-family:var(--mono);font-size:.72rem;padding:2px 8px;border-radius:6px;background:rgba(88,166,255,.1);color:var(--accent-2)}
+    .svc{font-size:.78rem;color:var(--text-mute)}
+    .st{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:.7rem;font-weight:600;background:rgba(74,222,128,.12);color:#86efac;border:1px solid rgba(74,222,128,.3)}
+    .row-main{cursor:pointer;transition:background .15s}.row-main:hover{background:rgba(88,166,255,.05)}
+    .exp-cell{text-align:center;color:var(--text-mute);width:32px}
+    .detail-row td{background:rgba(0,0,0,.2)}
+    .exp{padding:8px 4px;display:grid;gap:16px}
+    .exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .exp b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:6px}
+    .exp p{font-size:.85rem;color:var(--text-soft)}
+    .cfg{margin:0 0 0 18px}.cfg li{font-size:.82rem;color:var(--text-soft);margin-bottom:5px}
+    .cfg code,.exp code{font-family:var(--mono);font-size:.78rem;color:var(--accent-2)}
+    .note{font-size:.8rem;color:var(--text-mute);margin-top:12px;text-align:center}
+    /* code tabs */
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .tab{padding:7px 14px;border-radius:8px;font-size:.82rem;font-weight:500;cursor:pointer;color:var(--text-soft);background:transparent;border:1px solid var(--panel-border)}
+    .tab:hover{color:var(--text);background:rgba(255,255,255,.05)}.tab.active{color:#fff;background:rgba(88,166,255,.18);border-color:var(--accent)}
+    .panel{border:1px solid var(--panel-border);border-radius:var(--radius);overflow:hidden;background:var(--bg-2)}
+    .panel-meta{display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--panel-border);background:rgba(255,255,255,.02);flex-wrap:wrap}
+    .panel-tag{font-family:var(--mono);font-size:.72rem;color:var(--accent);background:rgba(88,166,255,.1);padding:2px 8px;border-radius:6px}
+    .panel-desc{font-size:.82rem;color:var(--text-soft)}
+    pre.code{padding:16px;overflow-x:auto;font-size:.8rem;line-height:1.6;color:#cdd9ec;white-space:pre}
+    pre.code .cmt{color:var(--text-mute)}
+    /* cloud cards */
+    .cloud-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .cloud-card{padding:16px;border-radius:12px;background:var(--panel);border:1px solid var(--panel-border);text-align:center}
+    .cloud-card h5{font-size:.92rem;font-weight:650;margin-bottom:4px}
+    .cloud-card p{font-size:.76rem;color:var(--text-soft)}
+    /* outcomes */
+    .out-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .out{padding:20px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--panel-border)}
+    .out h4{font-size:.95rem;font-weight:650;margin-bottom:8px}.out p{font-size:.84rem;color:var(--text-soft)}
+    .foot{margin-top:40px;padding:20px;border:1px dashed var(--panel-border);border-radius:10px;font-size:.82rem;color:var(--text-mute)}
+    @media (max-width:860px){.stats,.two-col,.exp-grid,.cloud-grid,.out-cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner">
+    <div class="brand"><span class="brand-badge">SS</span><span>Steven Smith<small>IT Controls Assurance Toolkit · Demonstration</small></span></div>
+    <a class="btn" id="repo-link" href="#" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+  </div></header>
+
+  <main class="wrap">
+    <div class="page-head">
+      <span class="eyebrow">Work-sample template</span>
+      <h1>IT Controls Assurance Toolkit</h1>
+      <p class="sub">A reusable toolkit of scripts &amp; templates for IT audit and GRC — evidence, testing, reporting &amp; policy-as-code</p>
+      <div class="divider"></div>
+    </div>
+    <div class="stats" id="stats"></div>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><h2>Toolkit Overview</h2></div>
+      <div class="card company" id="overview"></div>
+    </section>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><h2>Toolkit Modules</h2></div>
+      <p class="intro">The toolkit is organized into cohesive modules that map to the assurance lifecycle — collect evidence, analyze access, test controls, report, and enforce guardrails. Each module ships with sample inputs and a documented run sequence.</p>
+      <div class="filters" id="filters"></div>
+      <div class="table-wrap"><table><thead><tr><th>Module</th><th>Phase</th><th>Name</th><th>Tooling</th><th>Status</th><th></th></tr></thead><tbody id="mod-body"></tbody></table></div>
+      <p class="note">Click any module to expand its description, inputs/outputs, and numbered run sequence.</p>
+    </section>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><h2>Automation Code</h2></div>
+      <p class="intro">The engineering behind the modules — a control test runner and Jinja2 report generator in Python, a Bash ITGC evidence collector, PowerShell access review with SoD detection, SQL audit sampling, an Ansible baseline play, a GitHub Actions gate, and the OPA/Rego policy it enforces.</p>
+      <div class="tabs" id="code-tabs"></div><div class="panel" id="code-panel"></div>
+    </section>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0 0-9h-1.8A7 7 0 1 0 4 15.7"/></svg><h2>Multi-Cloud Compliance Guardrails</h2></div>
+      <p class="intro">The same control intent expressed as infrastructure-as-code across all three major clouds — AWS Config rules &amp; SCPs, Azure Policy via Bicep, and GCP Organization Policy constraints.</p>
+      <div class="cloud-grid" id="clouds"></div>
+      <div class="tabs" id="cloud-tabs" style="margin-top:18px"></div><div class="panel" id="cloud-panel"></div>
+    </section>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg><h2>Framework Mapping</h2></div>
+      <p class="intro">Every toolkit check carries references to multiple control frameworks, so a single automated test produces evidence for NIST 800-53, CIS Controls, ISO 27001, and SOC 2 at once.</p>
+      <div class="table-wrap"><table><thead><tr><th>Toolkit Check</th><th>NIST 800-53</th><th>CIS Controls</th><th>ISO 27001:2022</th><th>SOC 2 (TSC)</th></tr></thead><tbody id="map-body"></tbody></table></div>
+    </section>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><h2>Architecture &amp; CI Pipeline</h2></div>
+      <p class="intro">How the modules compose into a pipeline: evidence and tests feed a framework crosswalk; guardrails and a CI policy gate keep infrastructure from drifting out of compliance.</p>
+      <div class="two-col" id="diagrams"></div>
+    </section>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg><h2>Spreadsheet Artifacts</h2></div>
+      <p class="intro">The toolkit still speaks the auditor's language. It emits a Risk-Control Matrix (RCM) and an audit checklist as plain CSV, ready for the workpaper store or a GRC platform import.</p>
+      <div id="artifacts" style="display:grid;gap:18px"></div>
+    </section>
+
+    <section class="block"><div class="block-head"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><h2>Key Learning Outcomes</h2></div>
+      <div class="out-cards" id="outcomes"></div>
+    </section>
+
+    <div class="foot" id="foot"></div>
+  </main>
+
+  <script>
+    const REPO_URL="https://github.com/SmittyStuff/ita-grc-toolkit";
+    document.getElementById('repo-link').href=REPO_URL;
+    const esc=s=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+    const codeHtml=s=>esc(s).replace(/(#[^\n]*|--[^\n]*)/g,'<span class="cmt">$1</span>');
+
+    // ── Toolkit overview ──
+    const overview={
+      name:"IT Controls Assurance Toolkit",
+      tag:"Illustrative open-source-style toolkit for IT audit & GRC engineering",
+      purpose:"A cohesive set of reusable scripts and templates that treat controls, evidence, and reports as versioned code rather than screenshots and spreadsheets. It automates ITGC evidence collection, access recertification and segregation-of-duties analysis, control testing, policy and report generation, framework crosswalking, and multi-cloud policy-as-code guardrails.",
+      install:`# Install
+git clone https://github.com/SmittyStuff/ita-grc-toolkit.git
+cd ita-grc-toolkit
+pip install -r requirements.txt        # pyyaml, jinja2, boto3
+./setup.sh                             # installs conftest + pre-commit hooks`,
+      tree:`ita-grc-toolkit/
+|-- controls/            # declarative control catalogs (YAML)
+|   \`-- controls.yaml
+|-- modules/
+|   |-- collect/         # ITGC evidence collectors (Bash, PowerShell)
+|   |-- access/          # access recertification & SoD analyzer
+|   |-- testrunner/      # Python control test runner -> JSON + JUnit
+|   |-- report/          # Jinja2 policy & report generator
+|   \`-- crosswalk/       # framework crosswalk builder
+|-- guardrails/
+|   |-- aws/             # CloudFormation Config rules + SCPs
+|   |-- azure/           # Bicep Azure Policy assignments
+|   \`-- gcp/             # Org Policy constraints (gcloud)
+|-- policy/              # OPA/Rego policies for Conftest
+|-- templates/           # Jinja2 report & policy templates
+|-- mappings/            # NIST / CIS / ISO / SOC 2 crosswalk tables
+\`-- .github/workflows/   # CI compliance gate`,
+      tools:["Python","Bash","PowerShell","SQL","Ansible","GitHub Actions","Jinja2","OPA/Conftest","CloudFormation","Bicep","GCP Org Policy"]
+    };
+
+    // ── Modules ──
+    const modules=[
+      {id:"MOD-01",phase:"Collect",name:"ITGC Evidence Collector",tools:"Bash · PowerShell",
+        desc:"Pulls point-in-time IT general control evidence — user access exports, change-ticket samples, and configuration baselines — into a timestamped, hash-verified evidence folder.",
+        inputs:"Read-only cloud/API credentials, ticketing API token, list of in-scope systems",
+        outputs:"evidence/<timestamp>/ folder with CSV/JSON artifacts + a SHA-256 manifest",
+        run:["Copy config.sample.yaml to config.yaml and set read-only credentials and the system scope.","Run ./collect_itgc.sh --period Q3-2026 to pull access, change, and config evidence.","Review the generated manifest.sha256 to confirm artifact integrity.","Archive the evidence/<timestamp>/ folder to the audit workpaper store."]},
+      {id:"MOD-02",phase:"Analyze",name:"Access Recertification & SoD Analyzer",tools:"PowerShell · Python · SQL",
+        desc:"Ingests AD/Entra and application access exports, builds recertification worksheets by manager, and flags segregation-of-duties conflicts against a configurable ruleset.",
+        inputs:"AD/Entra user & group export, application role export, SoD conflict ruleset (YAML)",
+        outputs:"recert_by_manager.xlsx, sod_conflicts.csv, terminated_still_active.csv",
+        run:["Export identities with Get-EntraAccess.ps1 (or import an existing IAM export).","Define toxic role pairs in sod_rules.yaml (e.g., AP-Create + AP-Approve).","Run python sod_analyze.py --access access.csv --rules sod_rules.yaml.","Distribute per-manager recert worksheets; import signed decisions back for the evidence trail."]},
+      {id:"MOD-03",phase:"Test",name:"Control Test Runner",tools:"Python",
+        desc:"Loads a declarative controls catalog (YAML/JSON), executes each automated check, and emits a machine-readable pass/fail report plus a JUnit XML for CI.",
+        inputs:"controls.yaml catalog, target environment credentials, check plugins",
+        outputs:"control_results.json, control_results.xml (JUnit), non-zero exit on failure",
+        run:["Describe each control and its check in controls.yaml (id, framework refs, severity).","Run python run_controls.py --catalog controls.yaml --out results/.","Inspect results/control_results.json for pass/fail and captured evidence.","Wire the JUnit output into CI so a failed control breaks the build."]},
+      {id:"MOD-04",phase:"Report",name:"Policy / Report Generator",tools:"Python · Jinja2",
+        desc:"Renders audit-ready reports and policy documents from control results and organization metadata using versioned Jinja2 templates — no manual copy-paste.",
+        inputs:"control_results.json, org_profile.yaml, Jinja2 templates",
+        outputs:"SOC2_readiness.md/html, access_control_policy.md, evidence_index.html",
+        run:["Populate org_profile.yaml with the entity name, scope, and reporting period.","Pick or customize a template in templates/ (report or policy).","Run python render.py --template soc2_readiness.md.j2 --data control_results.json.","Review and export the rendered Markdown/HTML into the report package."]},
+      {id:"MOD-05",phase:"Analyze",name:"Framework Crosswalk Builder",tools:"Python",
+        desc:"Builds a many-to-many crosswalk between internal controls and NIST 800-53, CIS Controls, ISO 27001, and SOC 2 — so one test satisfies multiple frameworks and gaps become visible.",
+        inputs:"control catalog, framework mapping tables (CSV)",
+        outputs:"crosswalk.csv, crosswalk.json, coverage gap report",
+        run:["Maintain mappings/*.csv linking each control to its framework references.","Run python build_crosswalk.py to join controls to all four frameworks.","Review the coverage report for frameworks with unmapped requirements.","Publish crosswalk.csv into the GRC register / Risk-Control Matrix."]},
+      {id:"MOD-06",phase:"Enforce",name:"Multi-Cloud Compliance Guardrails",tools:"CloudFormation · Bicep · GCP Org Policy · Ansible",
+        desc:"Deployable preventive and detective guardrails across AWS, Azure, and GCP — encryption, public-access, and logging baselines — plus a CIS-style host hardening check via Ansible.",
+        inputs:"Cloud account / subscription / project IDs and a deployment role",
+        outputs:"Deployed Config rules / Azure Policy / Org Policy constraints, host baseline report",
+        run:["Select the target cloud stack under guardrails/<cloud>/.","Deploy with the native tool (aws cloudformation deploy, az deployment, gcloud org-policies).","Run the Ansible baseline play against hosts for CIS-style checks.","Feed guardrail compliance state back into the Control Test Runner."]},
+      {id:"MOD-07",phase:"Test",name:"CI Policy-as-Code Gate",tools:"GitHub Actions · OPA/Conftest",
+        desc:"A reusable CI workflow that runs the control tests and a Conftest/Rego policy gate on IaC changes, blocking merges that would drift out of compliance and uploading evidence as an artifact.",
+        inputs:"Pull request with IaC changes, Rego policies, controls catalog",
+        outputs:"PR status check (pass/fail), uploaded compliance-evidence artifact",
+        run:["Add the reusable workflow under .github/workflows/compliance.yml.","Author deny rules in policy/*.rego for prohibited IaC configurations.","On each PR, CI runs the control tests, then conftest test against the plan.","Merge stays blocked until both the tests and the policy gate pass; evidence is uploaded."]},
+    ];
+
+    // ── Automation code ──
+    const code=[
+      {key:"py-runner",title:"Python · Control Test Runner",lang:"python",desc:"Executes a declarative controls catalog and emits a pass/fail JSON report and a JUnit XML for CI.",code:`#!/usr/bin/env python3
+"""Control Test Runner - execute a controls catalog and emit pass/fail + JUnit."""
+import json, sys, subprocess, datetime, xml.etree.ElementTree as ET
+import yaml  # pip install pyyaml
+
+def check_command(cmd):
+    """Run a shell check; the control passes when the command exits 0."""
+    p = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return p.returncode == 0, (p.stdout + p.stderr).strip()
+
+def run_catalog(path):
+    catalog = yaml.safe_load(open(path))
+    results = []
+    for c in catalog["controls"]:
+        ok, output = check_command(c["check"])
+        results.append({
+            "id": c["id"], "title": c["title"],
+            "frameworks": c.get("frameworks", {}),
+            "severity": c.get("severity", "medium"),
+            "pass": ok, "evidence": output[:500],
+        })
+    return results
+
+def write_junit(results, path):
+    suite = ET.Element("testsuite", name="control-tests",
+                       tests=str(len(results)),
+                       failures=str(sum(not r["pass"] for r in results)))
+    for r in results:
+        case = ET.SubElement(suite, "testcase", classname=r["id"], name=r["title"])
+        if not r["pass"]:
+            ET.SubElement(case, "failure", message=r["severity"]).text = r["evidence"]
+    ET.ElementTree(suite).write(path, encoding="utf-8", xml_declaration=True)
+
+if __name__ == "__main__":
+    results = run_catalog(sys.argv[1] if len(sys.argv) > 1 else "controls.yaml")
+    report = {"generated": datetime.datetime.utcnow().isoformat() + "Z",
+              "total": len(results),
+              "passed": sum(r["pass"] for r in results),
+              "results": results}
+    json.dump(report, open("control_results.json", "w"), indent=2)
+    write_junit(results, "control_results.xml")
+    print(f"{report['passed']}/{report['total']} controls passing")
+    sys.exit(0 if report["passed"] == report["total"] else 1)`},
+      {key:"py-jinja",title:"Python · Jinja2 Report Generator",lang:"python",desc:"Renders audit-ready reports and policies from control results using versioned Jinja2 templates.",code:`#!/usr/bin/env python3
+"""Render audit reports and policies from control results using Jinja2 templates."""
+import json
+from datetime import date
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+def render(template_name, data_path, out_path):
+    env = Environment(
+        loader=FileSystemLoader("templates"),
+        autoescape=select_autoescape(["html", "xml"]),
+        trim_blocks=True, lstrip_blocks=True,
+    )
+    results = json.load(open(data_path))
+    passed = sum(1 for r in results["results"] if r["pass"])
+    context = {
+        "entity": "Example Corp",
+        "period": f"FY{date.today().year}",
+        "generated": date.today().isoformat(),
+        "controls": results["results"],
+        "pass_rate": round(100 * passed / results["total"]),
+    }
+    rendered = env.get_template(template_name).render(**context)
+    open(out_path, "w").write(rendered)
+    print(f"Wrote {out_path} ({context['pass_rate']}% controls passing)")
+
+if __name__ == "__main__":
+    render("soc2_readiness.md.j2", "control_results.json", "SOC2_readiness.md")
+
+# --- templates/soc2_readiness.md.j2 (the report template) ------------------
+# # SOC 2 Readiness - {{ entity }} ({{ period }})
+# Generated {{ generated }} - **{{ pass_rate }}%** of controls passing.
+#
+# | Control | Result | NIST 800-53 | ISO 27001 |
+# |---------|--------|-------------|-----------|
+# {% for c in controls -%}
+# | {{ c.id }} | {{ "PASS" if c.pass else "FAIL" }} | {{ c.frameworks.nist }} | {{ c.frameworks.iso27001 }} |
+# {% endfor -%}`},
+      {key:"bash",title:"Bash · ITGC Evidence Collector",lang:"bash",desc:"Collects user access, a change-ticket sample, and config baselines into a timestamped, hash-verified folder.",code:`#!/usr/bin/env bash
+# ITGC Evidence Collector - user access, change tickets, and config baselines.
+set -euo pipefail
+
+PERIOD="\${1:-$(date +%Y-%m)}"                 # audit period label
+OUT="evidence/$(date +%Y%m%d_%H%M%S)_\${PERIOD}"
+mkdir -p "$OUT"
+
+# 1) User access export (Linux local accounts as an example ITGC population)
+getent passwd | awk -F: '$3>=1000 {print $1","$3","$7}' \\
+  > "$OUT/user_access.csv"
+
+# 2) Change-ticket sample (pull closed changes, take a random sample of 25)
+curl -s -H "Authorization: Bearer $TICKET_TOKEN" \\
+  "$TICKET_API/changes?state=closed&period=$PERIOD" \\
+  | jq -r '.items[] | [.id,.summary,.approved_by,.closed_at] | @csv' \\
+  | shuf | head -25 > "$OUT/change_sample.csv"
+
+# 3) Configuration baselines (sshd + firewall) for the config-change control
+sshd -T 2>/dev/null | sort > "$OUT/sshd_effective_config.txt"
+iptables -S 2>/dev/null > "$OUT/firewall_rules.txt" || true
+
+# 4) Integrity manifest so the workpapers are tamper-evident
+( cd "$OUT" && sha256sum ./* > manifest.sha256 )
+echo "ITGC evidence for $PERIOD written to $OUT"`},
+      {key:"powershell",title:"PowerShell · Access Review & SoD",lang:"powershell",desc:"Exports AD/Entra access for recertification and flags segregation-of-duties conflicts to CSV.",code:`# Access Recertification & Segregation-of-Duties export (AD / Entra ID)
+param(
+    [string]$OutDir = "access-review/$(Get-Date -Format yyyyMMdd)"
+)
+New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
+
+# 1) Pull enabled users with their group memberships (Microsoft Graph)
+Connect-MgGraph -Scopes "User.Read.All","Group.Read.All","AuditLog.Read.All"
+$users = Get-MgUser -All -Property Id,DisplayName,UserPrincipalName,AccountEnabled,Department
+$access = foreach ($u in $users) {
+    $groups = (Get-MgUserMemberOf -UserId $u.Id).AdditionalProperties.displayName
+    [pscustomobject]@{
+        User       = $u.UserPrincipalName
+        Name       = $u.DisplayName
+        Department = $u.Department
+        Enabled    = $u.AccountEnabled
+        Roles      = ($groups -join '; ')
+    }
+}
+$access | Export-Csv "$OutDir/access_recert.csv" -NoTypeInformation
+
+# 2) Segregation of duties: flag anyone holding a toxic pair of roles
+$toxicPairs = @(
+    @{ A = 'AP-Create'; B = 'AP-Approve' },      # create + approve payments
+    @{ A = 'IAM-Admin'; B = 'Audit-Log-Admin' }  # admin + owns the audit trail
+)
+$sod = foreach ($row in $access) {
+    foreach ($p in $toxicPairs) {
+        if ($row.Roles -match $p.A -and $row.Roles -match $p.B) {
+            [pscustomobject]@{ User = $row.User; Conflict = "$($p.A) + $($p.B)" }
+        }
+    }
+}
+$sod | Export-Csv "$OutDir/sod_conflicts.csv" -NoTypeInformation
+Write-Host "Exported $($access.Count) identities; $($sod.Count) SoD conflicts"`},
+      {key:"sql",title:"SQL · Audit Sampling",lang:"sql",desc:"Random N-per-population sampling, access-recertification exceptions, and terminated-users-still-active.",code:`-- Audit sampling & access-recertification exceptions
+-- 1) Random sample of N=25 transactions per population (reproducible seed)
+WITH ranked AS (
+  SELECT t.*,
+         ROW_NUMBER() OVER (PARTITION BY population
+                            ORDER BY md5(id::text || '2026-Q3')) AS rn
+  FROM   transactions t
+  WHERE  posted_at BETWEEN DATE '2026-07-01' AND DATE '2026-09-30'
+)
+SELECT population, id, amount, posted_by, posted_at
+FROM   ranked
+WHERE  rn <= 25
+ORDER  BY population, rn;
+
+-- 2) Access-recertification exceptions: access never used in the last 90 days
+SELECT u.user_id, u.full_name, r.role_name, r.granted_at
+FROM   user_roles r
+JOIN   users u ON u.user_id = r.user_id
+LEFT   JOIN access_log l
+       ON l.user_id = r.user_id AND l.used_at > CURRENT_DATE - INTERVAL '90 days'
+WHERE  l.user_id IS NULL
+ORDER  BY r.granted_at;
+
+-- 3) Terminated users still holding active access (ITGC exception)
+SELECT e.employee_id, e.full_name, e.termination_date, a.account, a.last_login
+FROM   hr_terminations e
+JOIN   active_accounts a ON a.employee_id = e.employee_id
+WHERE  e.termination_date < CURRENT_DATE
+  AND  a.status = 'ACTIVE'
+ORDER  BY e.termination_date;`},
+      {key:"ansible",title:"Ansible · Baseline Hardening",lang:"yaml",desc:"A CIS-style host baseline play; run with --check to audit only, or apply to remediate.",code:`# CIS-style host baseline checks & remediation (run with --check to audit only)
+- name: Linux security baseline
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Ensure SSH root login is disabled (CIS 5.2.10)
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+        validate: '/usr/sbin/sshd -t -f %s'
+      notify: restart sshd
+
+    - name: Ensure password max age is 365 days (CIS 5.4.1.1)
+      ansible.builtin.replace:
+        path: /etc/login.defs
+        regexp: '^PASS_MAX_DAYS\\s+\\d+'
+        replace: 'PASS_MAX_DAYS 365'
+
+    - name: Ensure auditd is installed and enabled (CIS 4.1.1)
+      ansible.builtin.package:
+        name: auditd
+        state: present
+
+    - name: Collect the baseline as evidence for the control test runner
+      ansible.builtin.command: sshd -T
+      changed_when: false
+      register: sshd_effective
+
+  handlers:
+    - name: restart sshd
+      ansible.builtin.service:
+        name: sshd
+        state: restarted`},
+      {key:"gha",title:"GitHub Actions · CI Gate",lang:"yaml",desc:"On every IaC pull request, run the control tests and a Conftest policy gate, then upload evidence.",code:`# .github/workflows/compliance.yml - control tests + policy-as-code gate
+name: compliance-gate
+on:
+  pull_request:
+    paths: [ "infra/**", "controls.yaml", "policy/**" ]
+
+jobs:
+  controls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Run control test runner
+        run: |
+          pip install pyyaml jinja2
+          python run_controls.py --catalog controls.yaml --out results/
+
+      - name: Render readiness report
+        run: python render.py --template soc2_readiness.md.j2 --data results/control_results.json
+
+      - name: Policy-as-code gate on IaC (Conftest / OPA)
+        run: |
+          curl -sL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz \\
+            | tar xz conftest
+          ./conftest test infra/ --policy policy/
+
+      - name: Upload evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-evidence-\${{ github.sha }}
+          path: results/`},
+      {key:"rego",title:"OPA/Rego · Conftest Policy",lang:"rego",desc:"The deny rules enforced by the CI gate — encryption, exposed admin ports, and required ownership tags.",code:`# policy/iac.rego - deny non-compliant IaC (evaluated by conftest)
+package main
+
+# Deny storage without encryption at rest (NIST SC-28, ISO A.8.24, SOC2 CC6.7)
+deny[msg] {
+    resource := input.resource.aws_s3_bucket[name]
+    not resource.server_side_encryption_configuration
+    msg := sprintf("S3 bucket '%s' must enable server-side encryption", [name])
+}
+
+# Deny security groups open to the world on admin ports (CIS 5.2, SOC2 CC6.6)
+deny[msg] {
+    sg := input.resource.aws_security_group[name]
+    rule := sg.ingress[_]
+    rule.cidr_blocks[_] == "0.0.0.0/0"
+    admin_port(rule.from_port)
+    msg := sprintf("Security group '%s' exposes an admin port to 0.0.0.0/0", [name])
+}
+
+admin_port(p) { p == 22 }
+admin_port(p) { p == 3389 }
+
+# Warn when resources are missing an Owner tag (change-management evidence)
+warn[msg] {
+    r := input.resource[_][name]
+    not r.tags.Owner
+    msg := sprintf("Resource '%s' is missing a required Owner tag", [name])
+}`},
+    ];
+
+    // ── Multi-cloud guardrails ──
+    const cloudSummary=[
+      ["AWS","CloudFormation · AWS Config · SCPs"],
+      ["Azure","Bicep · Azure Policy assignments"],
+      ["GCP","Organization Policy constraints (gcloud)"],
+    ];
+    const clouds=[
+      {key:"aws",title:"AWS · CloudFormation",lang:"yaml",desc:"A detective AWS Config rule for S3 encryption, plus a preventive SCP that denies unencrypted uploads.",code:`# guardrails/aws/config-encryption-rule.yaml - deploy: aws cloudformation deploy
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Detective guardrail - flag S3 buckets without default encryption
+Resources:
+  S3EncryptionRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: s3-bucket-server-side-encryption-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED
+      Scope:
+        ComplianceResourceTypes: [ "AWS::S3::Bucket" ]
+
+# guardrails/aws/scp-deny-unencrypted-s3.json - preventive SCP on the Org OU
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [{
+#     "Sid": "DenyUnencryptedObjectUploads",
+#     "Effect": "Deny",
+#     "Action": "s3:PutObject",
+#     "Resource": "*",
+#     "Condition": {
+#       "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" }
+#     }
+#   }]
+# }`},
+      {key:"azure",title:"Azure · Bicep",lang:"bicep",desc:"An Azure Policy assignment (via Bicep) requiring secure transfer on all storage accounts in the subscription.",code:`// guardrails/azure/storage-secure-transfer.bicep - az deployment sub create
+targetScope = 'subscription'
+
+@description('Assign built-in policy: Secure transfer to storage accounts should be enabled')
+resource requireSecureTransfer 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+  name: 'require-storage-secure-transfer'
+  properties: {
+    displayName: 'Require secure transfer (HTTPS) on storage accounts'
+    // Built-in definition id for "Secure transfer to storage accounts should be enabled"
+    policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/404c3081-a854-4457-ae30-26a93ef643f9'
+    enforcementMode: 'Default'
+  }
+}`},
+      {key:"gcp",title:"GCP · Org Policy",lang:"bash",desc:"Organization-wide guardrails enforced with gcloud Organization Policy constraints.",code:`# guardrails/gcp/org-policies.sh - enforce org-wide guardrails via gcloud
+ORG_ID="123456789012"
+
+# 1) Require uniform bucket-level access (no per-object ACLs) - data access control
+gcloud resource-manager org-policies enable-enforce \\
+  constraints/storage.uniformBucketLevelAccess --organization "$ORG_ID"
+
+# 2) Restrict public IPs on Cloud SQL instances - network exposure guardrail
+gcloud resource-manager org-policies enable-enforce \\
+  constraints/sql.restrictPublicIp --organization "$ORG_ID"
+
+# 3) Require OS Login (centralized SSH access via IAM) - access management
+gcloud resource-manager org-policies enable-enforce \\
+  constraints/compute.requireOsLogin --organization "$ORG_ID"`},
+    ];
+
+    // ── Framework mapping ──
+    const mapping=[
+      ["Strong authentication (MFA)","IA-2","CIS 6.3, 6.5","A.5.17","CC6.1"],
+      ["Least-privilege access (RBAC)","AC-6","CIS 6.8","A.5.15","CC6.3"],
+      ["Access recertification","AC-2","CIS 5.1","A.5.18","CC6.2"],
+      ["Segregation of duties","AC-5","CIS 6.8","A.5.3","CC6.3"],
+      ["Encryption at rest & in transit","SC-28, SC-8","CIS 3.11","A.8.24","CC6.7"],
+      ["Audit logging & monitoring","AU-2, AU-6","CIS 8.2, 8.11","A.8.15","CC7.2"],
+      ["Change management","CM-3","CIS 4.2","A.8.32","CC8.1"],
+      ["Baseline hardening & vuln mgmt","CM-6, RA-5","CIS 4.1","A.8.9","CC7.1"],
+      ["Backup & recovery","CP-9","CIS 11.2","A.8.13","A1.2"],
+    ];
+
+    // ── Diagrams ──
+    const diagrams=[
+      {title:"Toolkit architecture",code:`            IT Controls Assurance Toolkit
+   +-----------+-----------+-----------+-----------+
+   | 1 Collect | 2 Analyze |  3 Test   | 4 Report  |
+   | ITGC evid | Access/SoD| Control   | Jinja2    |
+   | Bash / PS | Crosswalk | Test      | policies  |
+   |           | Py / SQL  | Runner    | & reports |
+   +-----+-----+-----+-----+-----+-----+-----+-----+
+         |           |           |           |
+         v           v           v           v
+   +-------------------------------------------------+
+   |   Framework Crosswalk (NIST . CIS . ISO . SOC2) |
+   +-------------------------------------------------+
+         |                                   |
+         v                                   v
+   +---------------------+       +-----------------------+
+   | 6 Multi-Cloud Guard |       | 7 CI Policy-as-Code   |
+   | rails AWS/Azure/GCP |       | gate  GH Actions + OPA|
+   +---------------------+       +-----------------------+`},
+      {title:"CI pipeline flow",code:`  commit  -->  control tests  -->  policy gate  -->  evidence
+   (PR)        run_controls.py     conftest test     artifact
+    |            | JUnit XML         | Rego deny        | results/
+    v            v                   v                  v
+  opens PR    fail = red X       fail = block merge  pass = green check
+
+  Merge is allowed only when BOTH the control tests and the
+  Conftest/OPA policy gate pass; the report + results upload as evidence.`},
+    ];
+
+    // ── Spreadsheet artifacts ──
+    const artifacts=[
+      {title:"risk_control_matrix.csv (RCM)",code:`Risk ID,Risk Description,Likelihood,Impact,Control ID,Control Description,Control Type,Framework Refs,Owner,Test Frequency,Status
+R-01,Unauthorized access to production systems,High,High,C-01,MFA enforced on all admin accounts,Preventive,NIST IA-2 / CC6.1,IT Security,Quarterly,Effective
+R-02,Excessive or stale user access,Medium,High,C-02,Quarterly access recertification by managers,Detective,NIST AC-2 / CC6.2,IT Security,Quarterly,Effective
+R-03,Segregation-of-duties conflict in finance,Medium,High,C-03,Automated SoD conflict analysis,Detective,NIST AC-5 / CC6.3,GRC,Quarterly,Needs Improvement
+R-04,Unencrypted sensitive data,Low,High,C-04,Encryption at rest + in transit enforced,Preventive,NIST SC-28 / CC6.7,Cloud Eng,Continuous,Effective
+R-05,Unauthorized production changes,Medium,Medium,C-05,PR review + CI policy gate on IaC,Preventive,NIST CM-3 / CC8.1,DevOps,Continuous,Effective`},
+      {title:"audit_checklist.csv",code:`Step,Control Area,Procedure,Evidence Requested,Sample Size,Result,Reviewer,Date
+1,Logical Access,Verify MFA enabled for all privileged users,IAM credential report / Entra sign-in policy,Population,Pass,S. Smith,2026-07-15
+2,Access Recert,Confirm quarterly recertification completed & signed,Recert worksheets with manager approval,25,Pass,S. Smith,2026-07-16
+3,Change Mgmt,Trace sampled changes to approval + successful deploy,Change tickets + CI run logs,25,Exception,S. Smith,2026-07-17
+4,Termination,Confirm access revoked within 24h of termination,HR term list vs. active accounts,Population,Pass,S. Smith,2026-07-18
+5,Backup,Verify backup jobs succeed and a restore is tested,Backup logs + restore test result,5,Pass,S. Smith,2026-07-19`},
+    ];
+
+    // ── Learning outcomes ──
+    const outcomes=[
+      ["Compliance as Code","Treating controls, evidence, and reports as versioned, diff-able artifacts instead of one-off screenshots and spreadsheets — repeatable across every audit period."],
+      ["ITGC Evidence Automation","Scripting repeatable, timestamped, hash-verified evidence collection across access, change, and configuration populations."],
+      ["Access Governance & SoD","Building recertification workflows and detecting segregation-of-duties conflicts directly from AD/Entra and application identity data."],
+      ["Control Testing Frameworks","Designing a declarative controls catalog and a runner that emits machine-readable pass/fail plus JUnit XML for CI."],
+      ["Framework Crosswalking","Mapping one control to NIST 800-53, CIS Controls, ISO 27001, and SOC 2 so a single test satisfies many requirements and gaps surface early."],
+      ["Policy & Report Generation","Using Jinja2 templates to produce audit-ready policies and readiness reports deterministically from control results."],
+      ["Multi-Cloud Guardrails","Expressing preventive and detective controls as infrastructure-as-code across AWS, Azure, and GCP from one toolkit."],
+      ["Policy-as-Code in CI/CD","Gating merges with OPA/Conftest so infrastructure cannot drift out of compliance between audits."],
+    ];
+
+    // ── renders ──
+    const scriptCount=code.length+clouds.length+2; // code samples + guardrail snippets + 2 CSV artifacts
+    document.getElementById('stats').innerHTML=[
+      {n:modules.length,l:'Toolkit Modules'},
+      {n:'40+',l:'Scripts & Templates'},
+      {n:'4',l:'Frameworks Mapped'},
+      {n:'3',l:'Clouds Covered',a:true}
+    ].map(s=>`<div class="stat"><span class="num${s.a?' accent':''}">${s.n}</span><span class="lbl">${s.l}</span></div>`).join('');
+
+    document.getElementById('overview').innerHTML=`
+      <div class="company-head">
+        <div class="company-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div><h3>${esc(overview.name)}</h3><p class="company-tag">${esc(overview.tag)}</p></div>
+      </div>
+      <p class="ov-purpose">${esc(overview.purpose)}</p>
+      <div class="two-col">
+        <div><p class="ov-sub">Install</p><pre class="code">${codeHtml(overview.install)}</pre></div>
+        <div><p class="ov-sub">Repository layout</p><pre class="code">${codeHtml(overview.tree)}</pre></div>
+      </div>
+      <div class="svc-strip">${overview.tools.map(t=>`<span class="svc-badge">${esc(t)}</span>`).join('')}</div>`;
+
+    // modules table
+    let phaseF='all';
+    const filtersEl=document.getElementById('filters'),mb=document.getElementById('mod-body');
+    const phases=[...new Set(modules.map(m=>m.phase))];
+    const phaseCount=p=>modules.filter(m=>m.phase===p).length;
+    function renderFilters(){filtersEl.innerHTML=`<span class="fl">Phase:</span>`+[['all','All',modules.length],...phases.map(p=>[p,p,phaseCount(p)])].map(([v,l,n])=>`<button class="fbtn ${phaseF===v?'active':''}" data-t="${v}">${l} (${n})</button>`).join('');}
+    function renderModules(){
+      const rows=phaseF==='all'?modules:modules.filter(m=>m.phase===phaseF);
+      mb.innerHTML=rows.map(m=>`<tr class="row-main" data-id="${m.id}"><td class="cid">${m.id}</td><td><span class="tsc-badge">${esc(m.phase)}</span></td><td class="cname">${esc(m.name)}</td><td class="svc">${esc(m.tools)}</td><td><span class="st">Included</span></td><td class="exp-cell">&#9662;</td></tr>
+      <tr class="detail-row" data-d="${m.id}" style="display:none"><td colspan="6"><div class="exp">
+        <div><b>Description</b><p>${esc(m.desc)}</p></div>
+        <div class="exp-grid"><div><b>Inputs</b><p>${esc(m.inputs)}</p></div><div><b>Outputs</b><p>${esc(m.outputs)}</p></div></div>
+        <div><b>How to run</b><ol class="cfg">${m.run.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div>
+      </div></td></tr>`).join('');
+    }
+    filtersEl.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b){phaseF=b.dataset.t;renderFilters();renderModules();}});
+    mb.addEventListener('click',e=>{const row=e.target.closest('.row-main');if(!row)return;const d=mb.querySelector(`[data-d="${row.dataset.id}"]`);if(d)d.style.display=d.style.display==='none'?'table-row':'none';});
+    renderFilters();renderModules();
+
+    // automation code tabs
+    let ci=0;const ct=document.getElementById('code-tabs'),cp=document.getElementById('code-panel');
+    function renderCode(){ct.innerHTML=code.map((c,i)=>`<button class="tab ${i===ci?'active':''}" data-i="${i}">${esc(c.title)}</button>`).join('');const c=code[ci];cp.innerHTML=`<div class="panel-meta"><span class="panel-tag">${c.lang}</span><span class="panel-desc">${esc(c.desc)}</span></div><pre class="code">${codeHtml(c.code)}</pre>`;}
+    ct.addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(b){ci=+b.dataset.i;renderCode();}});renderCode();
+
+    // cloud guardrails
+    document.getElementById('clouds').innerHTML=cloudSummary.map(([c,d])=>`<div class="cloud-card"><h5>${esc(c)}</h5><p>${esc(d)}</p></div>`).join('');
+    let gi=0;const gt=document.getElementById('cloud-tabs'),gp=document.getElementById('cloud-panel');
+    function renderCloud(){gt.innerHTML=clouds.map((c,i)=>`<button class="tab ${i===gi?'active':''}" data-i="${i}">${esc(c.title)}</button>`).join('');const c=clouds[gi];gp.innerHTML=`<div class="panel-meta"><span class="panel-tag">${c.lang}</span><span class="panel-desc">${esc(c.desc)}</span></div><pre class="code">${codeHtml(c.code)}</pre>`;}
+    gt.addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(b){gi=+b.dataset.i;renderCloud();}});renderCloud();
+
+    // framework mapping
+    document.getElementById('map-body').innerHTML=mapping.map(([chk,nist,cis,iso,soc])=>`<tr><td class="cname">${esc(chk)}</td><td><span class="tsc-badge">${esc(nist)}</span></td><td class="svc">${esc(cis)}</td><td class="svc">${esc(iso)}</td><td><span class="tsc-badge">${esc(soc)}</span></td></tr>`).join('');
+
+    // diagrams
+    document.getElementById('diagrams').innerHTML=diagrams.map(d=>`<div class="panel"><div class="panel-meta"><span class="panel-tag">diagram</span><span class="panel-desc">${esc(d.title)}</span></div><pre class="code">${esc(d.code)}</pre></div>`).join('');
+
+    // artifacts
+    document.getElementById('artifacts').innerHTML=artifacts.map(a=>`<div class="panel"><div class="panel-meta"><span class="panel-tag">csv</span><span class="panel-desc">${esc(a.title)}</span></div><pre class="code">${esc(a.code)}</pre></div>`).join('');
+
+    // outcomes
+    document.getElementById('outcomes').innerHTML=outcomes.map(([t,d])=>`<div class="out"><h4>${esc(t)}</h4><p>${esc(d)}</p></div>`).join('');
+
+    document.getElementById('foot').innerHTML=`This is an illustrative IT audit &amp; GRC toolkit provided as a reusable work-sample template; the scripts, evidence, and organization are fictional and simplified for demonstration. Control references map to <a href="https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final" target="_blank" rel="noopener noreferrer">NIST SP 800-53 Rev. 5</a>, the <a href="https://www.cisecurity.org/controls" target="_blank" rel="noopener noreferrer">CIS Critical Security Controls v8</a>, <a href="https://www.iso.org/standard/27001" target="_blank" rel="noopener noreferrer">ISO/IEC 27001:2022</a>, and the <a href="https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2" target="_blank" rel="noopener noreferrer">AICPA SOC 2 Trust Services Criteria</a>. Validate all mappings and code against current standards and your environment before use.`;
+  </script>
+</body>
+</html>
