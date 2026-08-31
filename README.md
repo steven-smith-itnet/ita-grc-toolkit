@@ -28,7 +28,7 @@ Criteria**.
 
 ## 🔗 Live demo
 
-**https://itnet-steven-smith.github.io/ita-grc-toolkit/**
+**https://steven-smith-itnet.github.io/ita-grc-toolkit/**
 
 ## About
 

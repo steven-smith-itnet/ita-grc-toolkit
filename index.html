@@ -152,7 +152,7 @@
   </main>
 
   <script>
-    const REPO_URL="https://github.com/itnet-steven-smith/ita-grc-toolkit";
+    const REPO_URL="https://github.com/steven-smith-itnet/ita-grc-toolkit";
     document.getElementById('repo-link').href=REPO_URL;
     const esc=s=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
     const codeHtml=s=>esc(s).replace(/(#[^\n]*|--[^\n]*)/g,'<span class="cmt">$1</span>');
@@ -163,7 +163,7 @@
       tag:"Illustrative open-source-style toolkit for IT audit & GRC engineering",
       purpose:"A cohesive set of reusable scripts and templates that treat controls, evidence, and reports as versioned code rather than screenshots and spreadsheets. It automates ITGC evidence collection, access recertification and segregation-of-duties analysis, control testing, policy and report generation, framework crosswalking, and multi-cloud policy-as-code guardrails.",
       install:`# Install
-git clone https://github.com/itnet-steven-smith/ita-grc-toolkit.git
+git clone https://github.com/steven-smith-itnet/ita-grc-toolkit.git
 cd ita-grc-toolkit
 pip install -r requirements.txt        # pyyaml, jinja2, boto3
 ./setup.sh                             # installs conftest + pre-commit hooks`,
